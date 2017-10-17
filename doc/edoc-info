@@ -1,0 +1,4 @@
+%% encoding: UTF-8
+{application,logger}.
+{packages,[]}.
+{modules,[logger_app,logger_server,logger_sup]}.

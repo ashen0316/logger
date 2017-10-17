@@ -1,0 +1,13 @@
+{application, logger,
+ [
+  {description, ""},
+  {vsn, "1"},
+  {registered, []},
+  {applications, [
+                  kernel,
+                  stdlib,
+                  lager
+                 ]},
+  {mod, { logger_app, []}},
+  {env, []}
+ ]}.
