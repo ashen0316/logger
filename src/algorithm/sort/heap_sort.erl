@@ -21,16 +21,65 @@
 sort() ->
     sort(sort_util:init_rand_list()).
 
+sort([]) ->
+    [];
 sort(SourceList) ->
     HeapList = init_heap_list(SourceList),
-    do_sort(HeapList, []).
+    do_sort(sort_heap_list(HeapList), []).
 
-do_sort(_, _) ->
-    ok.
+do_sort([{_, LastNum}], ResultAcc) ->
+    ResultAcc ++ [LastNum];
+do_sort([{_, Num1}, {_, Num2}], ResultAcc) ->
+    ResultAcc ++ lists:sort([Num1, Num2]);
+do_sort(HeapList, ResultAcc) ->
+    {_, MinNum} = lists:keyfind(1, 1, HeapList),
+    HeapLength = length(HeapList),
+    {_, LastNum} = lists:keyfind(HeapLength, 1, HeapList),
+    TempHeapList = lists:keydelete(HeapLength, 1, HeapList),
+    TempHeapList1 = lists:keystore(1, 1, TempHeapList, {1, LastNum}),
+    NewHeapList = sort_heap_list(TempHeapList1, [{1, LastNum}]),
+    do_sort(NewHeapList, ResultAcc ++ [MinNum]).
 
 get_heap_node_list(HeapList) ->
     lists:sublist(HeapList, 1, length(HeapList) div 2).
 
 init_heap_list(SourceList) ->
     sort_util:build_kv_list(lists:seq(1, length(SourceList)), SourceList).
+
+sort_heap_list(HeapList) ->
+    NodeList = get_heap_node_list(HeapList),
+    sort_heap_list(HeapList, NodeList).
+    
+
+sort_heap_list(HeapList, []) ->
+    HeapList;
+sort_heap_list(OldHeapList, [{NodeId, NodeNum} | T]) ->
+    HeapLength = length(OldHeapList),
+    ChildNodeList = [lists:keyfind(ChildIndex, 1, OldHeapList) || ChildIndex <- [NodeId * 2, NodeId * 2 + 1], ChildIndex =< HeapLength],
+    {MinNodeId, MinNodeNum} = hd(lists:keysort(2, ChildNodeList)),
+    case NodeNum =< MinNodeNum of
+        true ->
+            sort_heap_list(OldHeapList, T);
+        false ->
+            TempHeapList = lists:keystore(NodeId, 1, OldHeapList, {NodeId, MinNodeNum}),
+            NewHeapList = lists:keystore(MinNodeId, 1, TempHeapList, {MinNodeId, NodeNum}),
+            NodeList = get_heap_node_list(NewHeapList),
+            UpdateNodeList =
+            case lists:keymember(MinNodeId, 1, NodeList) of
+                true ->
+                    [{MinNodeId, NodeNum} | T];
+                false ->
+                    T
+            end,
+            UpdateNodeList1 =
+            case lists:keymember(NodeId div 2, 1, T) orelse NodeId =:= 1 of
+                true ->
+                    UpdateNodeList;
+                false ->
+                    [lists:keyfind(NodeId div 2, 1, NewHeapList) | UpdateNodeList]
+            end,
+            sort_heap_list(NewHeapList, UpdateNodeList1)
+    end.
+
+    
     
