@@ -15,7 +15,8 @@
     init_rand_list/0,
     init_rand_list/1,
     get_permutations/1,
-    build_kv_list/2
+    build_kv_list/2,
+    rand/2
 ]).
 
 %% @doc 随机生成一个列表，长度10，元素为1到1000随机，不重复
